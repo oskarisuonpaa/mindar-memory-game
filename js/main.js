@@ -25,6 +25,8 @@ AFRAME.registerComponent("memory-card", {
   schema: { pairId: { type: "int" } },
   init: function () {
     this.el.addEventListener("targetFound", () => {
+      const idx = this.el.getAttribute("mindar-image-target").targetIndex;
+      showFeedback(`idx=${idx}, pair=${this.data.pairId}`, true);
       // ignore repeated detection of the same marker
       if (lastCard && lastCard.el === this.el) return;
 
@@ -79,7 +81,7 @@ document.addEventListener("DOMContentLoaded", () => {
       entity.appendChild(image);
       scene.appendChild(entity);
 
-      //console.log(`Mapped marker ${targetIndex} to image ${imgSrc}, pair ${i}`);
+      console.log(`Mapped marker ${targetIndex} to image ${imgSrc}, pair ${i}`);
       targetIndex++;
     });
   }
