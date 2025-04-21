@@ -25,7 +25,6 @@ AFRAME.registerComponent("memory-card", {
   schema: { pairId: { type: "int" } },
   init: function () {
     this.el.addEventListener("targetFound", () => {
-      if (lastCard && lastCard.el === this.el) return;
       const pairId = this.data.pairId;
       if (!lastCard) {
         lastCard = { id: pairId, el: this.el };
