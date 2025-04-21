@@ -25,18 +25,20 @@ AFRAME.registerComponent("memory-card", {
   schema: { pairId: { type: "int" } },
   init: function () {
     this.el.addEventListener("targetFound", () => {
+      // ignore repeated detection of the same marker
+      if (lastCard && lastCard.el === this.el) return;
+
       const pairId = this.data.pairId;
       if (!lastCard) {
         lastCard = { id: pairId, el: this.el };
       } else {
-        if (lastCard.id === pairId && lastCard.el !== this.el) {
+        if (lastCard.id === pairId) {
           score++;
           updateScore();
           showFeedback("✅ Match!", true);
         } else {
           showFeedback("❌ Try again", false);
         }
-        // reset after a short delay
         setTimeout(() => {
           lastCard = null;
         }, 1000);
@@ -50,16 +52,17 @@ document.addEventListener("DOMContentLoaded", () => {
   const assets = document.getElementById("assets");
   const scene = document.getElementById("scene");
 
-  // Sequential targetIndex assignment: each printed marker always maps to its fixed pair
   let targetIndex = 0;
-  for (let i = 0; i < NUM_PAIRS; i++) {
+  // Here files are named 1.png through 8.png; two copies per pair
+  for (let i = 1; i <= NUM_PAIRS; i++) {
     ["a", "b"].forEach((suffix) => {
       const imgId = `card${i}${suffix}`;
+      const imgSrc = `assets/${i}.png`;
 
       // Preload image asset
       const img = document.createElement("img");
       img.id = imgId;
-      img.src = `assets/${imgId}.png`;
+      img.src = imgSrc;
       assets.appendChild(img);
 
       // Create AR entity with fixed mapping
@@ -76,6 +79,7 @@ document.addEventListener("DOMContentLoaded", () => {
       entity.appendChild(image);
       scene.appendChild(entity);
 
+      //console.log(`Mapped marker ${targetIndex} to image ${imgSrc}, pair ${i}`);
       targetIndex++;
     });
   }
