@@ -14,7 +14,10 @@ function showFeedback(text, isMatch) {
   fb.style.borderColor = isMatch ? "var(--green)" : "var(--red)";
   fb.classList.remove("hidden");
   fb.classList.add("show");
-  setTimeout(() => fb.classList.remove("show"), 1000);
+  setTimeout(() => {
+    fb.classList.remove("show");
+    fb.classList.add("hidden");
+  }, 1000);
 }
 
 // Register the memory-card component
@@ -22,6 +25,7 @@ AFRAME.registerComponent("memory-card", {
   schema: { pairId: { type: "int" } },
   init: function () {
     this.el.addEventListener("targetFound", () => {
+      if (lastCard && lastCard.el === this.el) return;
       const pairId = this.data.pairId;
       if (!lastCard) {
         lastCard = { id: pairId, el: this.el };
@@ -47,34 +51,33 @@ document.addEventListener("DOMContentLoaded", () => {
   const assets = document.getElementById("assets");
   const scene = document.getElementById("scene");
 
-  // Create an array [0..NUM_PAIRS*2-1] and shuffle it
-  const indices = [...Array(NUM_PAIRS * 2).keys()].sort(
-    () => 0.5 - Math.random()
-  );
+  // Sequential targetIndex assignment: each printed marker always maps to its fixed pair
+  let targetIndex = 0;
+  for (let i = 0; i < NUM_PAIRS; i++) {
+    ["a", "b"].forEach((suffix) => {
+      const imgId = `card${i}${suffix}`;
 
-  indices.forEach((targetIndex, idx) => {
-    const pair = Math.floor(idx / 2);
-    const suffix = idx % 2 === 0 ? "a" : "b";
-    const imgId = `card${pair}${suffix}`;
+      // Preload image asset
+      const img = document.createElement("img");
+      img.id = imgId;
+      img.src = `assets/${imgId}.png`;
+      assets.appendChild(img);
 
-    // Preload image asset
-    const img = document.createElement("img");
-    img.id = imgId;
-    img.src = `assets/${imgId}.png`;
-    assets.appendChild(img);
+      // Create AR entity with fixed mapping
+      const entity = document.createElement("a-entity");
+      entity.setAttribute("mindar-image-target", `targetIndex: ${targetIndex}`);
+      entity.setAttribute("memory-card", `pairId: ${i}`);
 
-    // Create AR entity
-    const entity = document.createElement("a-entity");
-    entity.setAttribute("mindar-image-target", `targetIndex: ${targetIndex}`);
-    entity.setAttribute("memory-card", `pairId: ${pair}`);
+      const image = document.createElement("a-image");
+      image.setAttribute("src", `#${imgId}`);
+      image.setAttribute("width", "1");
+      image.setAttribute("height", "1");
+      image.setAttribute("position", "0 0 0");
 
-    const image = document.createElement("a-image");
-    image.setAttribute("src", `#${imgId}`);
-    image.setAttribute("width", "1");
-    image.setAttribute("height", "1");
-    image.setAttribute("position", "0 0 0");
+      entity.appendChild(image);
+      scene.appendChild(entity);
 
-    entity.appendChild(image);
-    scene.appendChild(entity);
-  });
+      targetIndex++;
+    });
+  }
 });
