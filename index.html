@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>AR Memory Game</title>
+    <!-- A-Frame & MindAR scripts -->
+    <script src="https://aframe.io/releases/1.5.0/aframe.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.5/dist/mindar-image-aframe.prod.js"></script>
+    <!-- Styles -->
+    <link rel="stylesheet" href="./css/style.css" />
+  </head>
+  <body>
+    <!-- Score HUD -->
+    <div id="score" aria-live="polite">Score: 0</div>
+    <!-- Feedback Overlay -->
+    <div id="feedback" class="hidden"></div>
+
+    <!-- AR Scene -->
+    <a-scene
+      id="scene"
+      mindar-image="imageTargetSrc: ./mindar/targets.mind; autoStart: true;"
+      embedded
+      color-space="sRGB"
+    >
+      <a-assets id="assets"></a-assets>
+      <a-camera position="0 0 0" look-controls="enabled: false"></a-camera>
+    </a-scene>
+
+    <!-- Main JS -->
+    <script src="./js/main.js"></script>
+  </body>
+</html>
